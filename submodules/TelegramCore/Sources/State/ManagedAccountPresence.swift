@@ -42,11 +42,12 @@ private final class AccountPresenceManagerImpl {
         self.onlineTimer?.invalidate()
     }
     
-    private func updatePresence(_ isOnline: Bool) {
+           private func updatePresence(_ isOnline: Bool) {
         let request: Signal<Api.Bool, MTRpcError>
-        if isOnline {
-            let timer = SignalKitTimer(timeout: 30.0, repeat: false, completion: { [weak self] in
-                guard let strongSelf = self else {
+        let effectiveOnline = (AyuConfig.isGhostModeEnabled && AyuConfig.alwaysOffline) ? false : isOnline
+        if effectiveOnline {
+            self.onlineTimer?.invalidate()
+
                     return
                 }
                 strongSelf.updatePresence(true)
@@ -54,7 +55,7 @@ private final class AccountPresenceManagerImpl {
             self.onlineTimer = timer
             timer.start()
             request = self.network.request(Api.functions.account.updateStatus(offline: .boolFalse))
-        } else {
+        } else {    
             self.onlineTimer?.invalidate()
             self.onlineTimer = nil
             request = self.network.request(Api.functions.account.updateStatus(offline: .boolTrue))

@@ -319,22 +319,29 @@ private func pushPeerReadState(network: Network, postbox: Postbox, stateManager:
                 }
             default:
                 switch readState {
-                case let .idBased(maxIncomingReadId, _, _, _, markedUnread):
-                    var pushSignal: Signal<Void, NoError> = network.request(Api.functions.messages.readHistory(peer: inputPeer, maxId: maxIncomingReadId))
-                    |> map(Optional.init)
-                    |> `catch` { _ -> Signal<Api.messages.AffectedMessages?, NoError> in
-                        return .single(nil)
-                    }
-                    |> mapToSignal { result -> Signal<Void, NoError> in
-                        if let result = result {
-                            switch result {
-                                case let .affectedMessages(affectedMessagesData):
-                                    let (pts, ptsCount) = (affectedMessagesData.pts, affectedMessagesData.ptsCount)
-                                    stateManager.addUpdateGroups([.updatePts(pts: pts, ptsCount: ptsCount)])
+                                    case let .idBased(maxIncomingReadId, _, _, markedUnread):
+                        var pushSignal: Signal<Void, NoError>
+                        if AyuConfig.isGhostModeEnabled && AyuConfig.hideReadReceipts {
+                            pushSignal = .complete()
+                        } else {
+                            pushSignal = network.request(Api.functions.messages.readHistory(peer: inputPeer, maxId: maxIncomingReadId))
+                            |> map(Optional.init)
+                            |> `catch` { _ -> Signal<Api.messages.AffectedMessages?, NoError> in
+                                return .single(nil)
+                            }
+                            |> mapToSignal { result -> Signal<Void, NoError> in
+                                if let result = result {
+                                    switch result {
+                                        case let .affectedMessages(affectedMessagesData):
+                                            let (pts, ptsCount) = (affectedMessagesData.pts, affectedMessagesData.ptsCount)
+                                            stateManager.addUpdateGroups([.updatePts(pts: pts, ptsCount: ptsCount)])
+                                    }
+                                }
+                                return .complete()
                             }
                         }
-                        return .complete()
-                    }
+
+                    
 
                     if markedUnread {
                         pushSignal = pushSignal
