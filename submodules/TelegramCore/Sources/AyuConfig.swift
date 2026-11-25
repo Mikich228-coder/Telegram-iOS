@@ -26,4 +26,17 @@ public final class AyuConfig {
         get { defaults.object(forKey: "ayu_always_offline") as? Bool ?? true }
         set { defaults.set(newValue, forKey: "ayu_always_offline") }
     }
+    
+    // Сохранять удаленные сообщения
+    public static var saveDeletedMessages: Bool {
+        get { defaults.object(forKey: "ayu_save_deleted") as? Bool ?? true }
+        set { defaults.set(newValue, forKey: "ayu_save_deleted") }
+    }
+
+    // Сохранять историю редактирования сообщений
+    public static var saveEditedMessages: Bool {
+        get { defaults.object(forKey: "ayu_save_edited") as? Bool ?? true }
+        set { defaults.set(newValue, forKey: "ayu_save_edited") }
+    }
+
 }
