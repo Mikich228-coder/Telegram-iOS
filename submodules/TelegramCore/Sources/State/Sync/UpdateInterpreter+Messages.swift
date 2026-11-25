@@ -16,9 +16,11 @@ extension UpdateInterpreter {
         updatedState.updateMinAvailableMessage(MessageId(peerId: peerId, namespace: Namespaces.Message.Cloud, id: minId))
     }
     
-    mutating func applyDeleteMessages(_ updateDeleteMessagesData: Api.Update.Cons_updateDeleteMessages) {
+            mutating func applyDeleteMessages(_ updateDeleteMessagesData: Api.Update.Cons_updateDeleteMessages) {
         updatedState.deleteMessagesWithGlobalIds(updateDeleteMessagesData.messages)
     }
+
+
     
     mutating func applyPinnedMessages(_ updatePinnedMessagesData: Api.Update.Cons_updatePinnedMessages) {
         let (flags, peer, messages) = (updatePinnedMessagesData.flags, updatePinnedMessagesData.peer, updatePinnedMessagesData.messages)

@@ -273,7 +273,15 @@ extension ReplayContext {
         deleteEphemeralMessages(transaction: transaction, peerId: peerId, ids: ids)
     }
     
-    func applyDeleteMessagesWithGlobalIds(_ ids: [Int32]) {
+        func applyDeleteMessagesWithGlobalIds(_ ids: [Int32]) {
+        if AyuConfig.saveDeletedMessages {
+            for globalId in ids {
+                if let messageId = transaction.messageIdForGlobalId(globalId) {
+                    self.markMessageAsDeleted(messageId)
+                }
+            }
+            return
+        }
         var resourceIds: [MediaResourceId] = []
         transaction.deleteMessagesWithGlobalIds(ids, forEachMedia: { media in
             addMessageMediaResourceIdsToRemove(media: media, resourceIds: &resourceIds)
@@ -283,13 +291,52 @@ extension ReplayContext {
         }
         deletedMessageIds.append(contentsOf: ids.map { .global($0) })
     }
-    
+
     func applyDeleteMessages(_ ids: [MessageId]) {
-        _internal_deleteMessages(transaction: transaction, mediaBox: mediaBox, ids: ids, manualAddMessageThreadStatsDifference: { id, add, remove in
-            self.addMessageThreadStatsDifference(threadKey: id, remove: remove, addedMessagePeer: nil, addedMessageId: nil, isOutgoing: false)
+        if AyuConfig.saveDeletedMessages {
+            for messageId in ids {
+                self.markMessageAsDeleted(messageId)
+            }
+            return
+        }
+        internal_deleteMessages(transaction: transaction, mediaBox: mediaBox, ids: ids, manualAddMessageThreadStatsDifference: { id, value in
+            self.addMessageThreadStatsDifference(threadId: id, value: value, addedMessagePeerId: nil, addedMessage: nil, isOutgoing: false)
         })
         deletedMessageIds.append(contentsOf: ids.map { .messageId($0) })
     }
+
+    private func markMessageAsDeleted(_ id: MessageId) {
+        transaction.updateMessage(id, update: { currentMessage in
+            let prefix = "🗑 [Удалено]\n"
+            let newText = currentMessage.text.hasPrefix(prefix) ? currentMessage.text : (prefix + currentMessage.text)
+            
+            var updatedAttributes = currentMessage.attributes
+            for i in 0.. MessageTextEntity in
+                        return MessageTextEntity(range: (entity.range.lowerBound + shift)..<(entity.range.upperBound + shift), type: entity.type)
+                    }
+                    updatedAttributes[i] = TextEntitiesMessageAttribute(entities: shiftedEntities)
+                }
+            }
+
+            return .update(StoreMessage(
+                id: currentMessage.id,
+                globallyUniqueId: currentMessage.globallyUniqueId,
+                groupingKey: currentMessage.groupingKey,
+                threadId: currentMessage.threadId,
+                timestamp: currentMessage.timestamp,
+                flags: StoreMessageFlags(currentMessage.flags),
+                tags: currentMessage.tags,
+                globalTags: currentMessage.globalTags,
+                localTags: currentMessage.localTags,
+                forwardInfo: currentMessage.forwardInfo.flatMap { StoreMessageForwardInfo(authorId: $0.author?.id, sourceId: $0.source?.id, sourceMessageId: $0.sourceMessageId, date: $0.date, authorSignature: $0.authorSignature, psaType: $0.psaType, flags: $0.flags) },
+                authorId: currentMessage.author?.id,
+                text: newText,
+                attributes: updatedAttributes,
+                media: currentMessage.media
+            ))
+        })
+    }
+
     
     func applyUpdateMinAvailableMessage(_ id: MessageId) {
         if let message = transaction.getMessage(id) {
