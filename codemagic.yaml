@@ -15,10 +15,11 @@ workflows:
           git remote set-url origin https://github.comTelegram-iOS.git
           git submodule sync
           git submodule update --init --depth 1
-          git -C submodules/TgVoipWebrtc config submodule.tgcalls.update none || true
-          git submodule update --init --recursive --depth 1
+          TGCALLS_REV=$(git -C submodules/TgVoipWebrtc ls-tree HEAD tgcalls | awk '{print $3}')
+          git -c submodule.tgcalls.update=none submodule update --init --recursive --depth 1
           rm -rf submodules/TgVoipWebrtc/tgcalls
-          git clone --depth 1 https://github.comtgcalls.git submodules/TgVoipWebrtc/tgcalls
+          git clone https://github.comtgcalls.git submodules/TgVoipWebrtc/tgcalls || git clone https://github.com submodules/TgVoipWebrtc/tgcalls
+          git -C submodules/TgVoipWebrtc/tgcalls checkout "$TGCALLS_REV" || true
 
       - name: Create Configuration JSON
         script: |
