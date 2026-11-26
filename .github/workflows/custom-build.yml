@@ -5,7 +5,7 @@ on:
 
 jobs:
   build:
-    runs-on: macos-latest # Облачный Mac для сборки
+    runs-on: macos-13 # Облачный Mac для сборки
     timeout-minutes: 120
 
     steps:
