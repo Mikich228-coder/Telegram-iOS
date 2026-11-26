@@ -8,7 +8,7 @@ workflows:
         - telegram_keys
       xcode: latest
     scripts:
-        - name: Init submodules from upstream
+      - name: Init submodules from upstream
         script: |
           git config --global url."https://github.com".insteadOf "https://github.com"
           git config --global url."https://github.comtgcalls.git".insteadOf "../tgcalls.git"
