@@ -16,8 +16,10 @@ jobs:
 
       - name: Init submodules from upstream
         run: |
-          git config --global url."https://github.com".insteadOf "https://github.com"
+          git remote set-url origin https://github.com
+          git submodule sync --recursive
           git submodule update --init --recursive --depth 1
+
           
       - name: Check Xcode and tools
         run: |
