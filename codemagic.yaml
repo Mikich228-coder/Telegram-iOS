@@ -12,6 +12,8 @@ workflows:
         script: |
           git config --global url."https://github.com".insteadOf "https://github.com"
           git remote set-url origin https://github.comTelegram-iOS.git
+          git submodule deinit -f --all || true
+          rm -rf .git/modules/*
           git submodule sync --recursive
           git submodule update --init --recursive --depth 1
 
