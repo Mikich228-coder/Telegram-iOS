@@ -20,7 +20,7 @@
           cat << EOF > build-input/configuration.json
           {
             "bundle_id": "org.telegram.Telegram-iOS",
-            "api_id": "$TELEGRAM_API_ID",
+            "api_id": $TELEGRAM_API_ID,
             "api_hash": "$TELEGRAM_API_HASH",
             "team_id": "",
             "app_center_id": "",
@@ -41,8 +41,9 @@
             build \
             --configurationPath="build-input/configuration.json" \
             --buildNumber=10000 \
-            --configuration=release_arm64
-
+            --configuration=release_arm64 \
+            --xcodeManagedCodesigning \
+            --disableProvisioningProfiles
       - name: Package Payload into IPA
         script: |
           mkdir -p Payload
