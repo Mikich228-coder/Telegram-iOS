@@ -34,16 +34,10 @@
           }
           EOF
 
-      - name: Build Unsigned IPA via Make.py
+        - name: Build Unsigned IPA via Make.py
         script: |
-          python3 build-system/Make/Make.py \
-            --cacheDir="$HOME/telegram-bazel-cache" \
-            --overrideXcodeVersion
-            build \
-            --configurationPath="build-input/configuration.json" \
-            --buildNumber=10000 \
-            --configuration=release_arm64 \
-            --xcodeManagedCodesigning
+          python3 build-system/Make/Make.py --cacheDir="$HOME/telegram-bazel-cache" --overrideXcodeVersion build --configurationPath="build-input/configuration.json" --buildNumber=10000 --configuration=release_arm64 --xcodeManagedCodesigning
+
       - name: Package Payload into IPA
         script: |
           mkdir -p Payload
