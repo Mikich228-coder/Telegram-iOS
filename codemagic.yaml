@@ -10,13 +10,14 @@ workflows:
     scripts:
       - name: Init submodules from upstream
         script: |
-          git config --global url."https://github.com".insteadOf "https://github.com"
+           git config --global url."https://github.com".insteadOf "https://github.com"
+          git config --global url."https://github.comtgcalls.git".insteadOf "https://tgcalls.git"
+          git config --global url."https://github.comtgcalls.git".insteadOf "https://tgcalls.git"
           git remote set-url origin https://github.comTelegram-iOS.git
           git submodule deinit -f --all || true
           rm -rf .git/modules/*
           git submodule sync --recursive
           git submodule update --init --recursive --depth 1
-
       - name: Create Configuration JSON
         script: |
           mkdir -p build-input
