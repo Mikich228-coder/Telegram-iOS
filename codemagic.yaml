@@ -8,9 +8,10 @@ workflows:
         - telegram_keys
       xcode: latest
     scripts:
-      - name: Init submodules from upstream
+            - name: Init submodules from upstream
         script: |
-          git remote set-url origin https://github.com
+          git config --global url."https://github.com".insteadOf "https://github.com"
+          git remote set-url origin https://github.com/Telegram-iOS.git
           git submodule sync --recursive
           git submodule update --init --recursive --depth 1
 
