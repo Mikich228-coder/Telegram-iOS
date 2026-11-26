@@ -1,0 +1,54 @@
+workflows:
+  ios-custom-build:
+    name: Build Telegram iOS (Unsigned IPA)
+    max_build_duration: 120
+    instance_type: mac_mini_m2
+    environment:
+      groups:
+        - telegram_keys
+      xcode: latest
+    scripts:
+      - name: Init submodules from upstream
+        script: |
+          git remote set-url origin https://github.com
+          git submodule sync --recursive
+          git submodule update --init --recursive --depth 1
+
+      - name: Create Configuration JSON
+        script: |
+          mkdir -p build-input
+          cat << EOF > build-input/configuration.json
+          {
+            "bundle_id": "org.telegram.Telegram-iOS",
+            "api_id": "$TELEGRAM_API_ID",
+            "api_hash": "$TELEGRAM_API_HASH",
+            "team_id": "",
+            "app_center_id": "",
+            "is_internal_build": "true",
+            "is_appstore_build": "false",
+            "appstore_id": "686449807",
+            "app_specific_url_scheme": "tg",
+            "premium_iap_product_id": "",
+            "enable_siri": false,
+            "enable_icloud": false
+          }
+          EOF
+
+      - name: Build Unsigned IPA via Make.py
+        script: |
+          python3 build-system/Make/Make.py \
+            --cacheDir="$HOME/telegram-bazel-cache" \
+            build \
+            --configurationPath="build-input/configuration.json" \
+            --buildNumber=10000 \
+            --configuration=release_arm64
+
+      - name: Package Payload into IPA
+        script: |
+          mkdir -p Payload
+          APP_PATH=$(find bazel-bin -name "Telegram.app" | head -n 1)
+          cp -r "$APP_PATH" Payload/
+          zip -r Telegram-Custom.ipa Payload
+
+    artifacts:
+      - Telegram-Custom.ipa
