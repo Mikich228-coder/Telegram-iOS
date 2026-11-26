@@ -1,8 +1,11 @@
-workflows:
+ workflows:
   ios-custom-build:
     name: Build Telegram iOS (Unsigned IPA)
     max_build_duration: 120
     instance_type: mac_mini_m2
+    clone_options:
+      depth: 1
+      skip_submodules: true
     environment:
       groups:
         - telegram_keys
@@ -10,7 +13,7 @@ workflows:
     scripts:
       - name: Init submodules from upstream
         script: |
-          git remote set-url origin https://github.com
+          git remote set-url origin https://github.com/TelegramMessenger/Telegram-iOS.git
           git submodule sync --recursive
           git submodule update --init --recursive --depth 1
 
