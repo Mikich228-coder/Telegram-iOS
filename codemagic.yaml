@@ -12,10 +12,13 @@ workflows:
         script: |
           rm -f ~/.gitconfig
           git config --global url."https://github.com".insteadOf "https://github.com"
-          git config --global url."https://github.comtgcalls.git".insteadOf "https://tgcalls.git"
           git remote set-url origin https://github.comTelegram-iOS.git
-          git submodule sync --recursive
+          git submodule sync
+          git submodule update --init --depth 1
+          git -C submodules/TgVoipWebrtc config submodule.tgcalls.update none || true
           git submodule update --init --recursive --depth 1
+          rm -rf submodules/TgVoipWebrtc/tgcalls
+          git clone --depth 1 https://github.comtgcalls.git submodules/TgVoipWebrtc/tgcalls
 
       - name: Create Configuration JSON
         script: |
