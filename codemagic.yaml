@@ -38,6 +38,7 @@
         script: |
           python3 build-system/Make/Make.py \
             --cacheDir="$HOME/telegram-bazel-cache" \
+            --overrideXcodeVersion
             build \
             --configurationPath="build-input/configuration.json" \
             --buildNumber=10000 \
